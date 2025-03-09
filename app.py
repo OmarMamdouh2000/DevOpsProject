@@ -34,19 +34,19 @@ def predict():
     except FileNotFoundError:
         LOG.error("Model file not found.")
         return jsonify({"error": "Model not loaded"}), 500
-    except Exception as e:
-        LOG.error("Unexpected error: %s", str(e))
-        return jsonify({"error": "Internal server error"}), 500
+    except joblib.externals.loky.process_executor.BrokenProcessPool:
+        LOG.error("Joblib process pool error.")
+        return jsonify({"error": "Model execution error"}), 500
+    except ValueError as e:
+        LOG.error("Value error: %s", str(e))
+        return jsonify({"error": "Invalid input data"}), 400
 
     json_payload = request.json
     LOG.info("JSON payload received: %s", json_payload)
-    
     inference_payload = pd.DataFrame(json_payload)
     LOG.info("Inference payload DataFrame: %s", inference_payload)
-
     scaled_payload = scale(inference_payload)
     prediction = list(clf.predict(scaled_payload))
-
     return jsonify({'prediction': prediction})
 
 if __name__ == "__main__":
