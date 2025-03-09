@@ -9,10 +9,18 @@ trigger:
 pool: myAgentPool
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.10.14'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - script: |
+      make install
+    displayName: 'Install dependencies'
+
+  - script: |
+      make lint
+    displayName: 'Lint with pylint'
+
+  - script: |
+      make test
+    displayName: 'Test with pytest'
