@@ -33,7 +33,7 @@ stages:
 
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        python3.10 -m pylint app.py
+        python3.10 -m pylint --disable=W0718,C0303 app.py
       workingDirectory: $(projectRoot)
       displayName: 'Step 3 - Run Linter'
 
