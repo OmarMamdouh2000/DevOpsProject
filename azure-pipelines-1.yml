@@ -1,7 +1,6 @@
 # Starter pipeline    
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# Builds, runs tests, and deploys a Flask app
+
 trigger:
 - main
 
@@ -9,16 +8,9 @@ trigger:
 pool: myAgentPool
 
 variables:
-  # TODO: Replace the service connection name as used in the DevOps project settings
-  azureServiceConnectionId: 'myServiceConnection'
-  
-  # TODO: Specify the value of the existing Web App name
+  azureServiceConnectionId: 'myServiceConnection'  # Replace with actual service connection
   webAppName: 'mywebapp20223110'
-
-  # Environment name
   environmentName: 'flask-ml-service'
-
-  # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
 
 stages:
@@ -28,28 +20,25 @@ stages:
   - job: BuildJob
     pool: myAgentPool
     steps:    
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.10'  # Use Python 3.10+
+      displayName: 'Step 1 - Set Python Version'
+
     - script: |
-        python3.7 -m pip install --upgrade pip
-        python3.7 -m pip install setup
-        python3.7 -m pip install -r requirements.txt
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
       workingDirectory: $(projectRoot)
-      displayName: 'myStep 1'
+      displayName: 'Step 2 - Install Dependencies'
 
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        make install
-      workingDirectory: $(projectRoot)
-      displayName: 'myStep 2'
-
-    - script: |
-        export PATH=$HOME/.local/bin:$PATH
-        make install
         make lint
       workingDirectory: $(projectRoot)
-      displayName:  'myStep 3 - Run lint tests'
+      displayName: 'Step 3 - Run Linter'
 
     - task: ArchiveFiles@2
-      displayName: 'myStep 4 - Archive files'
+      displayName: 'Step 4 - Archive files'
       inputs:
         rootFolderOrFile: '$(projectRoot)'
         includeRootFolder: false
@@ -58,5 +47,5 @@ stages:
         replaceExistingArchive: true
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'myStep 5 - Upload package'
+      displayName: 'Step 5 - Upload package'
       artifact: drop
