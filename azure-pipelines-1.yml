@@ -33,7 +33,7 @@ stages:
 
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        make lint
+        python3.10 -m pylint app.py
       workingDirectory: $(projectRoot)
       displayName: 'Step 3 - Run Linter'
 
